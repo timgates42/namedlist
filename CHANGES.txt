@@ -1,6 +1,11 @@
 Change log
 ==========
 
+0.3 <future> Eric V. Smith
+----------------------------
+
+* Removed documentation left over from recordtype.
+
 0.2 2014-01-28 Eric V. Smith
 ----------------------------
 

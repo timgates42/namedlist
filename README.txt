@@ -180,11 +180,6 @@ namedlist classes contain these members:
 * _asdict(): Returns a dict which maps field names to their
   corresponding values.
 
-* _source: A string with the pure Python source code used to create
-  the namedlist class. The source makes the namedlist
-  self-documenting. It can be printed, executed using exec(), or saved
-  to a file and imported.
-
 * _fields: Tuple of strings listing the field names. Useful for introspection.
 
 
