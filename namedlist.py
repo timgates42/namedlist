@@ -578,7 +578,7 @@ if __name__ == '__main__':
             self.assertEqual(p.x, 0)
             self.assertEqual(p.y, 5)
 
-        def test_iterabale(self):
+        def test_iterable(self):
             Point = namedlist('Point', iter(['x', 'y']))
             p = Point(1, 2)
             self.assertEqual(p.x, 1)
