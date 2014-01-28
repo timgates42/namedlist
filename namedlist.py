@@ -178,7 +178,8 @@ def _init(self, *args):
 
 # returns a function with name 'name', that calls another function 'chain_fn'
 # this is used to create the __init__ function with the right argument names and defaults, that
-#  calls into _init to do the real work
+#  calls into _init to do the real work.
+# the new function takes args as arguments, with defaults as given
 def _make_fn(name, chain_fn, args, defaults):
     args_with_self = ['self'] + list(args)
     arguments = [_ast.Name(id=arg, ctx=_ast.Load()) for arg in args_with_self]
@@ -271,6 +272,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
                  '__getstate__': _getstate,
                  '__setstate__': _setstate,
                  '__iter__': _iter,
+                 '__hash__': None,
                  '_asdict': _asdict,
                  '_name': typename,
                  '_fields': all_field_names}
@@ -613,6 +615,11 @@ if __name__ == '__main__':
 
             b = A()
             self.assertEqual(b.x, [])
+
+        def test_unhashable(self):
+            Point = namedlist('Point', 'a b')
+            p = Point(1, 2)
+            self.assertRaises(TypeError, hash, p)
 
 
 

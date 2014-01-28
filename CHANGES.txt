@@ -6,6 +6,8 @@ Change log
 
 * Removed documentation left over from recordtype.
 
+* Make instances unhashable (issue #2).
+
 0.2 2014-01-28 Eric V. Smith
 ----------------------------
 
