@@ -227,7 +227,25 @@ lists. For example::
     >>> b = A()
     >>> assert b.x == [4]
 
-This is probably not the desired behavior.
+This is probably not the desired behavior, so see the next section.
+
+
+Specifying a factory function for default values
+------------------------------------------------
+
+You can supply a zero-argument callable for a default, by wrapping it
+in a FACTORY call.
+
+    >>> from namedlist import FACTORY
+    >>> A = namedlist('A', [('x', FACTORY(list))])
+    >>> a = A()
+    >>> a.x.append(4)
+    >>> b = A()
+    >>> assert b.x == []
+
+Every time a new instance is created, your callable (in this case,
+`list`), will be called to produce a new instance for the default
+value.
 
 Creating and using instances
 ============================
