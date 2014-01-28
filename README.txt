@@ -235,7 +235,8 @@ Specifying a factory function for default values
 
 You can supply a zero-argument callable for a default, by wrapping it
 in a FACTORY call. The only change in this example is to change the
-default from `[]` to `FACTORY(list)`::
+default from `[]` to `FACTORY(list)`. But note that `b.x` is a new
+list object, not shared with `a.x`::
 
     >>> from namedlist import FACTORY
     >>> A = namedlist('A', [('x', FACTORY(list))])
