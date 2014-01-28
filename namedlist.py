@@ -87,16 +87,21 @@ def _check_name(name, is_type_name=False, seen_names=None):
     if len(name) == 0:
         raise ValueError('Type names and field names cannot be zero '
                          'length: {0!r}'.format(name))
-    if not all(c.isalnum() or c=='_' for c in name):
-        raise ValueError('Type names and field names can only contain '
-                         'alphanumeric characters and underscores: '
-                         '{0!r}'.format(name))
+    if _PY2:
+        if not all(c.isalnum() or c=='_' for c in name):
+            raise ValueError('Type names and field names can only contain '
+                             'alphanumeric characters and underscores: '
+                             '{0!r}'.format(name))
+        if name[0].isdigit():
+            raise ValueError('Type names and field names cannot start with a '
+                             'number: {0!r}'.format(name))
+    else:
+        if not name.isidentifier():
+            raise ValueError('Type names and field names must be valid '
+                             'identifiers: {0!r}'.format(name))
     if _iskeyword(name):
         raise ValueError('Type names and field names cannot be a keyword: '
                          '{0!r}'.format(name))
-    if name[0].isdigit():
-        raise ValueError('Type names and field names cannot start with a '
-                         'number: {0!r}'.format(name))
 
     if not is_type_name:
         # these tests don't apply for the typename, just the fieldnames
@@ -286,6 +291,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
 
 if __name__ == '__main__':
     import unittest
+    import unicodedata
 
     # test both pickle and cPickle in 2.x, but just pickle in 3.x
     import pickle
@@ -333,6 +339,7 @@ if __name__ == '__main__':
             self.assertRaises(ValueError, namedlist, 'Point', '_field')
             self.assertRaises(ValueError, namedlist, 'Point', [('', 0)])
             self.assertRaises(ValueError, namedlist, '', 'x y')
+            self.assertRaises(ValueError, namedlist, 'Point', unicodedata.lookup('SUPERSCRIPT ONE'))
 
         def test_bad_defaults(self):
             # if specifying the defaults, must provide a 2-tuple

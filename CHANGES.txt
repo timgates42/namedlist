@@ -8,6 +8,8 @@ Change log
 
 * Make instances unhashable (issue #2).
 
+* For python3, use str.isidentifier (issue #1).
+
 0.2 2014-01-28 Eric V. Smith
 ----------------------------
 
