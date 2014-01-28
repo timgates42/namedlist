@@ -542,6 +542,7 @@ if __name__ == '__main__':
             p = Point()
             # we should be able to create new attributes
             p.x = 3
+            self.assertEqual(p.x, 3)
 
         def test_rename(self):
             Point = namedlist('Point', ('abc', 'def'), rename=True)
