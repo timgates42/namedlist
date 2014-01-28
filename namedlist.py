@@ -26,10 +26,10 @@
 
 __all__ = ['namedlist', 'NO_DEFAULT', 'FACTORY']
 
-# all of this hassle with ast is solely to provide a decent __init__
-#  function, that takes all of the right arguments and defaults. but
+# All of this hassle with ast is solely to provide a decent __init__
+#  function, that takes all of the right arguments and defaults. But
 #  it's worth it to get all of the normal python error messages.
-# for other functions, like __repr__, we don't bother. __init__ is
+# For other functions, like __repr__, we don't bother. __init__ is
 #  the only function where we really need the argument processing.
 
 import ast as _ast
@@ -48,6 +48,8 @@ else:
 
 NO_DEFAULT = object()
 
+# Wrapper around a callable. Used to specify a factory function instead
+#  of a plain default value.
 class FACTORY(object):
     def __init__(self, callable):
         self._callable = callable
@@ -56,56 +58,81 @@ class FACTORY(object):
         return self._callable()
 
 
+########################################################################
 # Keep track of fields, both with and without defaults.
 class _Fields(object):
+    default_not_specified = object()
+
     def __init__(self, default):
         self.default = default
         self.with_defaults = []        # List of (field_name, default).
         self.without_defaults = []     # List of field_name.
 
-    def add_with_default(self, field_name, default):
-        if default is NO_DEFAULT:
-            self.add_without_default(field_name)
+    def add(self, field_name, default):
+        if default is self.default_not_specified:
+            if self.default is NO_DEFAULT:
+                # No default. There can't be any defaults already specified.
+                if len(self.with_defaults) != 0:
+                    raise ValueError('field {0} without a default follows fields '
+                                     'with defaults'.format(field_name))
+                self.without_defaults.append(field_name)
+            else:
+                self.add(field_name, self.default)
         else:
-            self.with_defaults.append((field_name, default))
+            if default is NO_DEFAULT:
+                self.add(field_name, self.default_not_specified)
+            else:
+                self.with_defaults.append((field_name, default))
 
-    def add_without_default(self, field_name):
-        if self.default is NO_DEFAULT:
-            # No default. There can't be any defaults already specified.
-            if self.with_defaults:
-                raise ValueError('field {0} without a default follows fields '
-                                 'with defaults'.format(field_name))
-            self.without_defaults.append(field_name)
+
+########################################################################
+# Validate and possibly sanitize the field and type names.
+class _NameChecker(object):
+    def __init__(self, typename):
+        self.seen_fields = set()
+        self.field_idx = 0
+        self._check_common(typename, 'Type')
+
+    def check_field_name(self, fieldname, rename):
+        idx = self.field_idx
+        self.field_idx += 1
+
+        try:
+            self._check_common(fieldname, 'Field')
+            self._check_specific_to_fields(fieldname)
+        except ValueError as ex:
+            if rename:
+                return '_' + str(idx)
+            else:
+                raise
+
+        self.seen_fields.add(fieldname)
+        return fieldname
+
+    def _check_common(self, name, type_of_name):
+        # tests that are common to both field names and the type name
+        if len(name) == 0:
+            raise ValueError('{0} names cannot be zero '
+                             'length: {1!r}'.format(type_of_name, name))
+        if _PY2:
+            if not all(c.isalnum() or c=='_' for c in name):
+                raise ValueError('{0} names can only contain '
+                                 'alphanumeric characters and underscores: '
+                                 '{1!r}'.format(type_of_name, name))
+            if name[0].isdigit():
+                raise ValueError('{0} names cannot start with a '
+                                 'number: {1!r}'.format(type_of_name, name))
         else:
-            self.add_with_default(field_name, self.default)
+            if not name.isidentifier():
+                raise ValueError('{0} names names must be valid '
+                                 'identifiers: {1!r}'.format(type_of_name, name))
+        if _iskeyword(name):
+            raise ValueError('{0} names cannot be a keyword: '
+                             '{1!r}'.format(type_of_name, name))
 
-
-# Used for both the type name and field names. If is_type_name is
-#  False, seen_names must be provided. Raise ValueError if the name is
-#  bad.
-def _check_name(name, is_type_name=False, seen_names=None):
-    if len(name) == 0:
-        raise ValueError('Type names and field names cannot be zero '
-                         'length: {0!r}'.format(name))
-    if _PY2:
-        if not all(c.isalnum() or c=='_' for c in name):
-            raise ValueError('Type names and field names can only contain '
-                             'alphanumeric characters and underscores: '
-                             '{0!r}'.format(name))
-        if name[0].isdigit():
-            raise ValueError('Type names and field names cannot start with a '
-                             'number: {0!r}'.format(name))
-    else:
-        if not name.isidentifier():
-            raise ValueError('Type names and field names must be valid '
-                             'identifiers: {0!r}'.format(name))
-    if _iskeyword(name):
-        raise ValueError('Type names and field names cannot be a keyword: '
-                         '{0!r}'.format(name))
-
-    if not is_type_name:
+    def _check_specific_to_fields(self, name):
         # these tests don't apply for the typename, just the fieldnames
-        if name in seen_names:
+        if name in self.seen_fields:
             raise ValueError('Encountered duplicate field name: '
                              '{0!r}'.format(name))
 
@@ -114,60 +141,37 @@ def _check_name(name, is_type_name=False, seen_names=None):
                              '{0!r}'.format(name))
 
 
-# Validate a field name. If it's a bad name, and if rename is True,
-#  then return a 'sanitized' name. Raise ValueError if the name is bad.
-def _check_field_name(name, seen_names, rename, idx):
-    try:
-        _check_name(name, seen_names=seen_names)
-    except ValueError as ex:
-        if rename:
-            return '_' + str(idx)
-        else:
-            raise
-
-    seen_names.add(name)
-    return name
-
-
 ########################################################################
-# member functions
+# Member functions for the generated class.
 
 def _repr(self):
     return '{0}({1})'.format(self._name, ', '.join('{0}={1!r}'.format(name, getattr(self, name)) for name in self._fields))
 
-
 def _eq(self, other):
     return isinstance(other, self.__class__) and all(getattr(self, name) == getattr(other, name) for name in self._fields)
-
 
 def _ne(self, other):
     return not _eq(self, other)
 
-
 def _len(self):
     return len(self._fields)
-
 
 def _asdict(self):
     return {fieldname: getattr(self, fieldname) for fieldname in self._fields}
 
-
 def _getstate(self):
     return tuple(getattr(self, fieldname) for fieldname in self._fields)
-
 
 def _setstate(self, state):
     for fieldname, value in zip(self._fields, state):
         setattr(self, fieldname, value)
 
-
 def _iter(self):
     return (getattr(self, fieldname) for fieldname in self._fields)
-########################################################################
 
 
 ########################################################################
-# the function that __init__ calls to do the actual work
+# The function that __init__ calls to do the actual work.
 
 def _init(self, *args):
     # sets all of the fields to their passed in values
@@ -178,13 +182,13 @@ def _init(self, *args):
             #  factory function: call it
             value = value()
         setattr(self, fieldname, value)
+
+
 ########################################################################
-
-
-# returns a function with name 'name', that calls another function 'chain_fn'
-# this is used to create the __init__ function with the right argument names and defaults, that
+# Returns a function with name 'name', that calls another function 'chain_fn'
+# This is used to create the __init__ function with the right argument names and defaults, that
 #  calls into _init to do the real work.
-# the new function takes args as arguments, with defaults as given
+# The new function takes args as arguments, with defaults as given.
 def _make_fn(name, chain_fn, args, defaults):
     args_with_self = ['self'] + list(args)
     arguments = [_ast.Name(id=arg, ctx=_ast.Load()) for arg in args_with_self]
@@ -217,15 +221,19 @@ def _make_fn(name, chain_fn, args, defaults):
     return locals_[name]
 
 
+########################################################################
+# The actual namedlist factory function. Needs a docstring.
 def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
               use_slots=True):
     # field_names must be a string or an iterable, consisting of fieldname
     #  strings or 2-tuples. Each 2-tuple is of the form (fieldname,
     #  default).
 
+    # keeps track of the fields we're adding, with their defaults
     fields = _Fields(default)
 
-    _check_name(typename, is_type_name=True)
+    # validates field and type names
+    name_checker = _NameChecker(typename)
 
     if isinstance(field_names, _basestring):
         # No per-field defaults. So it's like a namedtuple, but with
@@ -237,19 +245,14 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
     if isinstance(field_names, _Mapping):
         field_names = field_names.items()
 
-    # Parse and validate the field names.  Validation serves two
-    #  purposes: generating informative error messages and preventing
-    #  template injection attacks.
+    # Parse and validate the field names.
 
     # field_names is now an iterable. Walk through it,
     # sanitizing as needed, and add to fields.
 
-    seen_names = set()
-    for idx, field_name in enumerate(field_names):
+    for field_name in field_names:
         if isinstance(field_name, _basestring):
-            field_name = _check_field_name(field_name, seen_names, rename,
-                                           idx)
-            fields.add_without_default(field_name)
+            default = fields.default_not_specified
         else:
             try:
                 if len(field_name) != 2:
@@ -260,16 +263,17 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
                 raise ValueError('field_name must be a 2-tuple: '
                                  '{0!r}'.format(field_name))
             default = field_name[1]
-            field_name = _check_field_name(field_name[0], seen_names, rename,
-                                           idx)
-            fields.add_with_default(field_name, default)
+            field_name = field_name[0]
+
+        # Okay: now we have the field_name and the default value (if any).
+        # Validate the name, and add the field
+        fields.add(name_checker.check_field_name(field_name, rename), default)
 
     all_field_names = tuple(fields.without_defaults + [name for name, default in
                                                        fields.with_defaults])
+    defaults = [default for _, default in fields.with_defaults]
 
-    __init = _make_fn('__init__', _init, all_field_names, [default for _, default in fields.with_defaults])
-
-    type_dict = {'__init__': __init,
+    type_dict = {'__init__': _make_fn('__init__', _init, all_field_names, defaults),
                  '__repr__': _repr,
                  '__eq__': _eq,
                  '__ne__': _ne,
@@ -285,7 +289,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
     if use_slots:
         type_dict['__slots__'] = all_field_names
 
-    # and finally, create and return the new type object
+    # And finally, create and return the new type object.
     return type(typename, (object,), type_dict)
 
 
