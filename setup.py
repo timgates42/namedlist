@@ -1,3 +1,4 @@
+from __future__ import print_function
 from distutils.core import setup, Command
 
 # run our tests
@@ -9,8 +10,14 @@ class PyTest(Command):
         pass
     def run(self):
         import sys, subprocess
-        errno = subprocess.call([sys.executable, 'namedlist.py'])
-        raise SystemExit(errno)
+        for name, cmds in (('test suite', ['namedlist.py']),
+                           ('doctests',   ['-m' 'doctest', 'README.txt']),
+                           ):
+            print(name)
+            errno = subprocess.call([sys.executable] + cmds)
+            if errno != 0:
+                raise SystemExit(errno)
+        print('test complete')
 
 
 setup(name='namedlist',

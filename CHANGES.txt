@@ -16,6 +16,8 @@ Change log
 
 * Add collections.Sequence ABC (issue #4).
 
+* Have "python setup.py test" also run doctests (issue #5).
+
 0.2 2014-01-28 Eric V. Smith
 ----------------------------
 
