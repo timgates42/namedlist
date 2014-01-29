@@ -172,6 +172,9 @@ def _setstate(self, state):
 def _getitem(self, idx):
     return getattr(self, self._fields[idx])
 
+def _setitem(self, idx, value):
+    return setattr(self, self._fields[idx], value)
+
 def _iter(self):
     return (getattr(self, fieldname) for fieldname in self._fields)
 
@@ -287,6 +290,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
                  '__getstate__': _getstate,
                  '__setstate__': _setstate,
                  '__getitem__': _getitem,
+                 '__setitem__': _setitem,
                  '__iter__': _iter,
                  '__hash__': None,
                  '_asdict': _asdict,
@@ -652,6 +656,17 @@ if __name__ == '__main__':
             Point = namedlist('Point', 'a b')
             p = Point(1, 2)
             self.assertEqual((p[0], p[1]), (1, 2))
+            self.assertEqual(list(p), [1, 2])
+            self.assertRaises(IndexError, p.__getitem__, 2)
+
+        def test_setitem(self):
+            Point = namedlist('Point', 'a b')
+            p = Point(1, 2)
+            p[0] = 10
+            self.assertEqual(list(p), [10, 2])
+            p[1] = 20
+            self.assertEqual(list(p), [10, 20])
+            self.assertRaises(IndexError, p.__setitem__, 2, 3)
 
         def test_container(self):
             # I'm not sure there's much sense in this, but list is a container
