@@ -43,7 +43,7 @@ Or, you can specify per-field default values::
     >>> assert p.x == 0
     >>> assert p.y == 100
 
-You can also specify a the per-field defaults with a mapping, instead
+You can also specify the per-field defaults with a mapping, instead
 of an interable. Note that this is only useful with an ordered
 mapping, such as an OrderedDict::
 
@@ -51,8 +51,8 @@ mapping, such as an OrderedDict::
     >>> Point = namedlist('Point', OrderedDict((('y', 0),
     ...                                         ('x', 100))))
     >>> p = Point()
-    >>> assert p.x == 100
-    >>> assert p.y == 0
+    >>> p
+    Point(y=0, x=100)
 
 The default value will only be used if it is provided and a per-field
 default is not used::
