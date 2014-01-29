@@ -30,7 +30,9 @@ __all__ = ['namedlist', 'NO_DEFAULT', 'FACTORY']
 #  function, that takes all of the right arguments and defaults. But
 #  it's worth it to get all of the normal python error messages.
 # For other functions, like __repr__, we don't bother. __init__ is
-#  the only function where we really need the argument processing.
+#  the only function where we really need the argument processing,
+#  because __init__ is the only function whose signature will vary
+#  per class.
 
 import ast as _ast
 import sys as _sys
@@ -229,10 +231,10 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
     #  strings or 2-tuples. Each 2-tuple is of the form (fieldname,
     #  default).
 
-    # keeps track of the fields we're adding, with their defaults
+    # Keeps track of the fields we're adding, with their defaults.
     fields = _Fields(default)
 
-    # validates field and type names
+    # Validates field and type names.
     name_checker = _NameChecker(typename)
 
     if isinstance(field_names, _basestring):
@@ -241,7 +243,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
         field_names = field_names.replace(',', ' ').split()
 
     # If field_names is a Mapping, change it to return the
-    #  (field_name, default) pairs, as if it were a list
+    #  (field_name, default) pairs, as if it were a list.
     if isinstance(field_names, _Mapping):
         field_names = field_names.items()
 
@@ -266,7 +268,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
             field_name = field_name[0]
 
         # Okay: now we have the field_name and the default value (if any).
-        # Validate the name, and add the field
+        # Validate the name, and add the field.
         fields.add(name_checker.check_field_name(field_name, rename), default)
 
     all_field_names = tuple(fields.without_defaults + [name for name, default in
