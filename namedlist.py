@@ -93,13 +93,9 @@ class _Fields(object):
 class _NameChecker(object):
     def __init__(self, typename):
         self.seen_fields = set()
-        self.field_idx = 0
         self._check_common(typename, 'Type')
 
-    def check_field_name(self, fieldname, rename):
-        idx = self.field_idx
-        self.field_idx += 1
-
+    def check_field_name(self, fieldname, rename, idx):
         try:
             self._check_common(fieldname, 'Field')
             self._check_specific_to_fields(fieldname)
@@ -259,7 +255,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
     # field_names is now an iterable. Walk through it,
     # sanitizing as needed, and add to fields.
 
-    for field_name in field_names:
+    for idx, field_name in enumerate(field_names):
         if isinstance(field_name, _basestring):
             default = fields.default_not_specified
         else:
@@ -276,7 +272,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
 
         # Okay: now we have the field_name and the default value (if any).
         # Validate the name, and add the field.
-        fields.add(name_checker.check_field_name(field_name, rename), default)
+        fields.add(name_checker.check_field_name(field_name, rename, idx), default)
 
     all_field_names = tuple(fields.without_defaults + [name for name, default in
                                                        fields.with_defaults])
