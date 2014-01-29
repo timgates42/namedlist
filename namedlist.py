@@ -148,7 +148,7 @@ class _NameChecker(object):
 # Member functions for the generated class.
 
 def _repr(self):
-    return '{0}({1})'.format(self._name, ', '.join('{0}={1!r}'.format(name, getattr(self, name)) for name in self._fields))
+    return '{0}({1})'.format(self.__class__.__name__, ', '.join('{0}={1!r}'.format(name, getattr(self, name)) for name in self._fields))
 
 def _eq(self, other):
     return isinstance(other, self.__class__) and all(getattr(self, name) == getattr(other, name) for name in self._fields)
@@ -290,7 +290,6 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
                  '__iter__': _iter,
                  '__hash__': None,
                  '_asdict': _asdict,
-                 '_name': typename,
                  '_fields': all_field_names}
 
     if use_slots:
