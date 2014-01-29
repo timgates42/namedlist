@@ -168,6 +168,9 @@ def _setstate(self, state):
     for fieldname, value in zip(self._fields, state):
         setattr(self, fieldname, value)
 
+def _getitem(self, idx):
+    return getattr(self, self._fields[idx])
+
 def _iter(self):
     return (getattr(self, fieldname) for fieldname in self._fields)
 
@@ -282,6 +285,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
                  '__len__': _len,
                  '__getstate__': _getstate,
                  '__setstate__': _setstate,
+                 '__getitem__': _getitem,
                  '__iter__': _iter,
                  '__hash__': None,
                  '_asdict': _asdict,
@@ -634,6 +638,11 @@ if __name__ == '__main__':
             Point = namedlist('Point', 'a b')
             p = Point(1, 2)
             self.assertRaises(TypeError, hash, p)
+
+        def test_getitem(self):
+            Point = namedlist('Point', 'a b')
+            p = Point(1, 2)
+            self.assertEqual((p[0], p[1]), (1, 2))
 
 
 
