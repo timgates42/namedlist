@@ -37,7 +37,8 @@ __all__ = ['namedlist', 'NO_DEFAULT', 'FACTORY']
 import ast as _ast
 import sys as _sys
 from keyword import iskeyword as _iskeyword
-from collections import Mapping as _Mapping
+import collections as _collections
+import abc as _abc
 
 _PY2 = _sys.version_info[0] == 2
 _PY3 = _sys.version_info[0] == 3
@@ -247,7 +248,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
 
     # If field_names is a Mapping, change it to return the
     #  (field_name, default) pairs, as if it were a list.
-    if isinstance(field_names, _Mapping):
+    if isinstance(field_names, _collections.Mapping):
         field_names = field_names.items()
 
     # Parse and validate the field names.
@@ -295,8 +296,14 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
     if use_slots:
         type_dict['__slots__'] = all_field_names
 
-    # And finally, create and return the new type object.
-    return type(typename, (object,), type_dict)
+    # Create the new type object.
+    t = type(typename, (object,), type_dict)
+
+    # Register its ABC's
+    _collections.Sequence.register(t)
+
+    # And return it.
+    return t
 
 
 if __name__ == '__main__':
@@ -647,6 +654,19 @@ if __name__ == '__main__':
             p = Point(1, 2)
             self.assertEqual((p[0], p[1]), (1, 2))
 
+        def test_container(self):
+            # I'm not sure there's much sense in this, but list is a container
+            Point = namedlist('Point', 'a b')
+            p = Point(1, 2)
+            self.assertIn(2, p)
+
+        def test_ABC(self):
+            Point = namedlist('Point', 'a b')
+            p = Point(1, 2)
+            self.assertIsInstance(p, _collections.Container)
+            self.assertIsInstance(p, _collections.Iterable)
+            self.assertIsInstance(p, _collections.Sized)
+            self.assertIsInstance(p, _collections.Sequence)
 
 
     unittest.main()
