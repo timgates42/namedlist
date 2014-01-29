@@ -244,6 +244,20 @@ Every time a new instance is created, your callable (in this case,
 `list`), will be called to produce a new instance for the default
 value.
 
+Iterating over instances
+------------------------
+
+Because instances are iterable (like lists), iteration works the same way. Values are returned in definition order::
+
+    >>> Point = namedlist('Point', 'x y z t')
+    >>> p = Point(1.0, 42.0, 3.14, 2.71828)
+    >>> for value in p:
+    ...    print(value)
+    1.0
+    42.0
+    3.14
+    2.71828
+
 Creating and using instances
 ============================
 

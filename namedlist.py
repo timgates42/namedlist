@@ -496,6 +496,9 @@ if __name__ == '__main__':
 
             self.assertEqual(list(iter(p)), [[1, 2, 3], 10, 20])
 
+            for expected, found in zip([[1, 2, 3], 10, 20], p):
+                self.assertEqual(expected, found)
+
         def test_fields(self):
             Point = namedlist('Point', 'x y z')
             self.assertEqual(Point._fields, ('x', 'y', 'z'))

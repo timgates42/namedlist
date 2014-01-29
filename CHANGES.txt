@@ -12,6 +12,8 @@ Change log
 
 * Reorganize code for name checking. No functional changes.
 
+* Make instances iterable (issue #3).
+
 0.2 2014-01-28 Eric V. Smith
 ----------------------------
 
