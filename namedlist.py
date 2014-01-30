@@ -656,6 +656,37 @@ if __name__ == '__main__':
             b = A()
             self.assertEqual(b.x, [])
 
+        def test_factory_for_default(self):
+            # make sure FACTORY works for the global default
+            A = namedlist('A', 'x y', default=FACTORY(list))
+            a = A()
+            self.assertEqual(a.x, [])
+            self.assertEqual(a.y, [])
+
+            a.x.append(4)
+            self.assertEqual(a.x, [4])
+            a.y.append(4)
+            self.assertEqual(a.y, [4])
+
+            b = A()
+            self.assertEqual(b.x, [])
+            self.assertEqual(b.y, [])
+
+            # mix and match FACTORY and a non-callable mutable default
+            A = namedlist('A', [('x', []), 'y'], default=FACTORY(list))
+            a = A()
+            self.assertEqual(a.x, [])
+            self.assertEqual(a.y, [])
+
+            a.x.append(4)
+            self.assertEqual(a.x, [4])
+            a.y.append(4)
+            self.assertEqual(a.y, [4])
+
+            b = A()
+            self.assertEqual(b.x, [4])
+            self.assertEqual(b.y, [])
+
         def test_unhashable(self):
             Point = namedlist('Point', 'a b')
             p = Point(1, 2)
