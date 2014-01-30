@@ -184,7 +184,6 @@ def _index(self, value, start=NO_DEFAULT, stop=NO_DEFAULT):
         return l.index(value)
     if stop is NO_DEFAULT:
         return l.index(value, start)
-    print('calling index', l, value, start, stop)
     return l.index(value, start, stop)
 
 ########################################################################
