@@ -521,12 +521,17 @@ if __name__ == '__main__':
         def test_fields(self):
             Point = namedlist('Point', 'x y z')
             self.assertEqual(Point._fields, ('x', 'y', 'z'))
+            self.assertIsInstance(Point._fields, tuple)
 
             Point = namedlist('Point', 'x y z', 100)
             self.assertEqual(Point._fields, ('x', 'y', 'z'))
 
             Point = namedlist('Point', [('x', 0), ('y', 0), ('z', 0)])
             self.assertEqual(Point._fields, ('x', 'y', 'z'))
+
+            Point = namedlist('Point', '')
+            self.assertEqual(Point._fields, ())
+            self.assertIsInstance(Point._fields, tuple)
 
         def test_pickle(self):
             for p in (TestRT0(), TestRT(x=10, y=20, z=30)):
