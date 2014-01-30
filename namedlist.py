@@ -174,6 +174,18 @@ def _setitem(self, idx, value):
 def _iter(self):
     return (getattr(self, fieldname) for fieldname in self._fields)
 
+def _count(self, value):
+    return sum(1 for v in iter(self) if v == value)
+
+def _index(self, value, start=NO_DEFAULT, stop=NO_DEFAULT):
+    # not the most efficient way to implement this, but it will work
+    l = list(self)
+    if start is NO_DEFAULT and stop is NO_DEFAULT:
+        return l.index(value)
+    if stop is NO_DEFAULT:
+        return l.index(value, start)
+    print('calling index', l, value, start, stop)
+    return l.index(value, start, stop)
 
 ########################################################################
 # The function that __init__ calls to do the actual work.
@@ -289,6 +301,8 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
                  '__setitem__': _setitem,
                  '__iter__': _iter,
                  '__hash__': None,
+                 'count': _count,
+                 'index': _index,
                  '_asdict': _asdict,
                  '_fields': all_field_names}
 
@@ -671,12 +685,27 @@ if __name__ == '__main__':
             self.assertIn(2, p)
 
         def test_ABC(self):
-            Point = namedlist('Point', 'a b')
-            p = Point(1, 2)
+            Point = namedlist('Point', 'a b c')
+            p = Point(1, 2, 2)
             self.assertIsInstance(p, _collections.Container)
             self.assertIsInstance(p, _collections.Iterable)
             self.assertIsInstance(p, _collections.Sized)
             self.assertIsInstance(p, _collections.Sequence)
+
+            self.assertEqual(list(reversed(p)), [2, 2, 1])
+            self.assertEqual(p.count(0), 0)
+            self.assertEqual(p.count(2), 2)
+            self.assertRaises(ValueError, p.index, 0)
+            self.assertEqual(p.index(2), 1)
+            self.assertEqual(p.index(1), 0)
+
+            A = namedlist('A', 'a b c d e f g h i j')
+            a = A(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+            self.assertEqual(a.index(0, 1), 1)
+            self.assertEqual(a.index(0, 5), 5)
+            self.assertEqual(a.index(0, 1, 3), 1)
+            self.assertEqual(a.index(0, 5, 12), 5)
+            self.assertRaises(ValueError, a.index, 0, 12)
 
 
     unittest.main()
