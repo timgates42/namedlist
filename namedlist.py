@@ -38,7 +38,6 @@ import ast as _ast
 import sys as _sys
 from keyword import iskeyword as _iskeyword
 import collections as _collections
-import itertools as _itertools
 import abc as _abc
 
 _PY2 = _sys.version_info[0] == 2
@@ -242,19 +241,22 @@ def _make_fn(name, chain_fn, args, defaults):
 
 
 ########################################################################
-# The defaults make this a little tricky. Append args in front of defaults
-#  until it's the same length as fields.
+# Produce a docstring for the class.
 
-_no_default = object()
 def _name_with_default(name, default):
-    if default is _no_default:
+    if default is NO_DEFAULT:
         return name
     return '{0}={1!r}'.format(name, default)
 
 def _build_docstring(typename, fields, defaults):
-    defaults = _itertools.chain(_itertools.repeat(_no_default,
-                                                  len(fields) - len(defaults)),
-                                defaults)
+    # We can use NO_DEFAULT as a sentinel here, becuase it will never be
+    #  present in defaults. By this point, it has been removed and replaced
+    #  with actual default values.
+
+    # The defaults make this a little tricky. Append a sentinel in
+    #  front of defaults until it's the same length as fields. The
+    #  sentinel value is used in _name_with_default
+    defaults = [NO_DEFAULT] * (len(fields) - len(defaults)) + defaults
     return '{0}({1})'.format(typename, ', '.join(_name_with_default(name, default) for name, default in zip(fields, defaults)))
 
 
