@@ -38,6 +38,7 @@ import ast as _ast
 import sys as _sys
 from keyword import iskeyword as _iskeyword
 import collections as _collections
+import itertools as _itertools
 import abc as _abc
 
 _PY2 = _sys.version_info[0] == 2
@@ -59,6 +60,9 @@ class FACTORY(object):
 
     def __call__(self):
         return self._callable()
+
+    def __repr__(self):
+        return 'FACTORY({0!r})'.format(self._callable)
 
 
 ########################################################################
@@ -238,6 +242,23 @@ def _make_fn(name, chain_fn, args, defaults):
 
 
 ########################################################################
+# The defaults make this a little tricky. Append args in front of defaults
+#  until it's the same length as fields.
+
+_no_default = object()
+def _name_with_default(name, default):
+    if default is _no_default:
+        return name
+    return '{0}={1!r}'.format(name, default)
+
+def _build_docstring(typename, fields, defaults):
+    defaults = _itertools.chain(_itertools.repeat(_no_default,
+                                                  len(fields) - len(defaults)),
+                                defaults)
+    return '{0}({1})'.format(typename, ', '.join(_name_with_default(name, default) for name, default in zip(fields, defaults)))
+
+
+########################################################################
 # The actual namedlist factory function. Needs a docstring.
 def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
               use_slots=True):
@@ -300,6 +321,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
                  '__setitem__': _setitem,
                  '__iter__': _iter,
                  '__hash__': None,
+                 '__doc__': _build_docstring(typename, all_field_names, defaults),
                  'count': _count,
                  'index': _index,
                  '_asdict': _asdict,
@@ -741,6 +763,38 @@ if __name__ == '__main__':
             self.assertEqual(a.index(0, 1, 3), 1)
             self.assertEqual(a.index(0, 5, 12), 5)
             self.assertRaises(ValueError, a.index, 0, 12)
+
+        def test_docstring(self):
+            Point = namedlist('Point', '')
+            self.assertEqual(Point.__doc__, 'Point()')
+
+            Point = namedlist('Point', 'dx')
+            self.assertEqual(Point.__doc__, 'Point(dx)')
+
+            Point = namedlist('Point', 'x')
+            self.assertEqual(Point.__doc__, 'Point(x)')
+
+            Point = namedlist('Point', 'dx dy, dz')
+            self.assertEqual(Point.__doc__, 'Point(dx, dy, dz)')
+
+            Point = namedlist('Point', 'dx dy dz', default=10)
+            self.assertEqual(Point.__doc__, 'Point(dx=10, dy=10, dz=10)')
+
+            Point = namedlist('Point', 'dx, dy, dz', default=FACTORY(10))
+            self.assertEqual(Point.__doc__, 'Point(dx=FACTORY(10), dy=FACTORY(10), dz=FACTORY(10))')
+
+            Point = namedlist('Point', ['dx', 'dy', ('dz', 11.0)], default=10)
+            self.assertEqual(Point.__doc__, 'Point(dx=10, dy=10, dz=11.0)')
+
+            Point = namedlist('Point', ['dx', 'dy', ('dz', 11.0)], default=FACTORY(list))
+            if _PY2:
+                list_repr = "<type 'list'>"
+            else:
+                list_repr = "<class 'list'>"
+            self.assertEqual(Point.__doc__, "Point(dx=FACTORY({0}), dy=FACTORY({0}), dz=11.0)".format(list_repr))
+
+            Point = namedlist('Point', ['dx', 'dy', ('dz', FACTORY(11.0))], default=[])
+            self.assertEqual(Point.__doc__, 'Point(dx=[], dy=[], dz=FACTORY(11.0))')
 
 
     unittest.main()

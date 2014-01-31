@@ -1,6 +1,11 @@
 Change log
 ==========
 
+0.4 <unreleased> Eric V. Smith
+----------------------------
+
+* Add docstring (issue #7).
+
 0.3 2014-01-29 Eric V. Smith
 ----------------------------
 
