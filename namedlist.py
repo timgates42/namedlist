@@ -243,7 +243,7 @@ def _make_fn(name, chain_fn, args, defaults):
 ########################################################################
 # Produce a docstring for the class.
 
-def _name_with_default(name, default):
+def _field_name_with_default(name, default):
     if default is NO_DEFAULT:
         return name
     return '{0}={1!r}'.format(name, default)
@@ -257,7 +257,8 @@ def _build_docstring(typename, fields, defaults):
     #  front of defaults until it's the same length as fields. The
     #  sentinel value is used in _name_with_default
     defaults = [NO_DEFAULT] * (len(fields) - len(defaults)) + defaults
-    return '{0}({1})'.format(typename, ', '.join(_name_with_default(name, default) for name, default in zip(fields, defaults)))
+    return '{0}({1})'.format(typename, ', '.join(_field_name_with_default(name, default)
+                                                 for name, default in zip(fields, defaults)))
 
 
 ########################################################################
