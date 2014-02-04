@@ -171,6 +171,14 @@ namedlist::
     >>> assert p.y == 1
     >>> assert p.z == 2
 
+However, note that this method does not add the new variable to
+_fields, so it is not recognized when iterating over the instance::
+
+    >>> list(p)
+    [0, 1]
+    >>> sorted(p._asdict().items())
+    [('x', 0), ('y', 1)]
+
 
 Additional class members
 ------------------------
@@ -211,7 +219,7 @@ For example::
 Mutable default values
 ----------------------
 
-Be aware of creating mutable default values. Due to the way Python
+Be aware of specifying mutable default values. Due to the way Python
 handles default values, each instance of a namedlist will share the
 default. This is especially problematic with default values that are
 lists. For example::
