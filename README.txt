@@ -44,7 +44,7 @@ Or, you can specify per-field default values::
     >>> assert p.y == 100
 
 You can also specify the per-field defaults with a mapping, instead
-of an interable. Note that this is only useful with an ordered
+of an iterable. Note that this is only useful with an ordered
 mapping, such as an OrderedDict::
 
     >>> from collections import OrderedDict
@@ -143,7 +143,7 @@ it with a field::
 Writing to values
 -----------------
 
-The objects retured by the factory function are fully writable, unlike
+The objects returned by the factory function are fully writable, unlike
 the tuple-derived classes returned by namedtuple::
 
     >>> Point = namedlist('Point', 'x y')
@@ -156,7 +156,7 @@ the tuple-derived classes returned by namedtuple::
 Specifying __slots__
 --------------------
 
-By default, the returned class sets __slots__, which is initialized to
+By default, the returned class sets __slots__ which is initialized to
 the field names. While this decreases memory usage by eliminating the
 instance dict, it also means that you cannot create new instance
 members.
