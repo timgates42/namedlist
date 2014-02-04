@@ -159,7 +159,7 @@ def _len(self):
     return len(self._fields)
 
 def _asdict(self):
-    return {fieldname: getattr(self, fieldname) for fieldname in self._fields}
+    return dict((fieldname,  getattr(self, fieldname)) for fieldname in self._fields)
 
 def _getstate(self):
     return tuple(getattr(self, fieldname) for fieldname in self._fields)
@@ -233,7 +233,7 @@ def _make_fn(name, chain_fn, args, defaults):
 
     # and eval it in the right context
     globals_ = {'_chain': chain_fn}
-    locals_ = {'_def{0}'.format(idx): value for idx, value in enumerate(defaults)}
+    locals_ = dict(('_def{0}'.format(idx), value) for idx, value in enumerate(defaults))
     eval(code, globals_, locals_)
 
     # extract our function from the newly created module
@@ -360,6 +360,15 @@ if __name__ == '__main__':
     TestRT = namedlist('TestRT', 'x y z')
 
     class TestNamedlist(unittest.TestCase):
+        # 2.6 is missing assertIsInstance and assertIn. Provide
+        #  trivial implementations for them.
+        if not hasattr(unittest.TestCase, 'assertIsInstance'):
+            def assertIsInstance(self, obj, cls):
+                self.assertTrue(isinstance(obj, cls))
+        if not hasattr(unittest.TestCase, 'assertIn'):
+            def assertIn(self, obj, iterable):
+                self.assertTrue(obj in iterable)
+
         def test_simple(self):
             Point = namedlist('Point', 'x y')
             p = Point(10, 20)

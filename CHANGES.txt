@@ -1,6 +1,19 @@
 Change log
 ==========
 
+0.5 <unreleased> Eric V. Smith
+----------------------------
+
+* Support python 2.6 (issue #8). The doctests don't pass because
+  OrderedDict isn't available until 2.7.
+
+0.4 2014-02-04 Eric V. Smith
+----------------------------
+
+* Add docstring (issue #7).
+
+* Fixed README.txt typos (thanks pombredanne on bitbucket).
+
 0.4 2014-02-04 Eric V. Smith
 ----------------------------
 
