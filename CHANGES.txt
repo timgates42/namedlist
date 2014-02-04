@@ -1,10 +1,12 @@
 Change log
 ==========
 
-0.4 <unreleased> Eric V. Smith
+0.4 2014-02-04 Eric V. Smith
 ----------------------------
 
 * Add docstring (issue #7).
+
+* Fixed README.txt typos (thanks pombredanne on bitbucket).
 
 0.3 2014-01-29 Eric V. Smith
 ----------------------------
