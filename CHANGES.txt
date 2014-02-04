@@ -1,8 +1,10 @@
 Change log
 ==========
 
-0.5 <unreleased> Eric V. Smith
+1.0 2014-02-04 Eric V. Smith
 ----------------------------
+
+* Declare the API stable and release version 1.0.
 
 * Support python 2.6 (issue #8). The doctests don't pass because
   OrderedDict isn't available until 2.7.
