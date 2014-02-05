@@ -192,12 +192,14 @@ def _index(self, value, start=NO_DEFAULT, stop=NO_DEFAULT):
 def _init(self, *args):
     # sets all of the fields to their passed in values
     assert len(args) == len(self._fields)
-    for fieldname, value in zip(self._fields, args):
-        if isinstance(value, FACTORY):
-            # instead of using the default value, it's really a
-            #  factory function: call it
-            value = value._callable()
+    for fieldname, value in _get_values(self._fields, args):
         setattr(self, fieldname, value)
+
+
+def _get_values(fields, args):
+    # Returns [(fieldname, value)]. If the value is a FACTORY, call it.
+    return [(fieldname, (value._callable() if isinstance(value, FACTORY) else value))
+            for fieldname, value in zip(fields, args)]
 
 
 ########################################################################
