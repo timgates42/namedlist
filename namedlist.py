@@ -197,7 +197,7 @@ def _init(self, *args):
 
 def _get_values(fields, args):
     # Returns [(fieldname, value)]. If the value is a FACTORY, call it.
-    assert len(args) == len(self._fields)
+    assert len(fields) == len(args)
     return [(fieldname, (value._callable() if isinstance(value, FACTORY) else value))
             for fieldname, value in zip(fields, args)]
 
