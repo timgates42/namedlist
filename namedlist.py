@@ -262,9 +262,9 @@ def _build_docstring(typename, fields, defaults):
 
 
 ########################################################################
-# The actual namedlist factory function. Needs a docstring.
-def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
-              use_slots=True):
+# Given the typename, fields_names, default, and the rename flag,
+#  return a tuple of fields and a list of defaults.
+def _fields_and_defaults(typename, field_names, default, rename):
     # field_names must be a string or an iterable, consisting of fieldname
     #  strings or 2-tuples. Each 2-tuple is of the form (fieldname,
     #  default).
@@ -309,11 +309,19 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
         # Validate the name, and add the field.
         fields.add(name_checker.check_field_name(field_name, rename, idx), default)
 
-    all_field_names = tuple(fields.without_defaults + [name for name, default in
-                                                       fields.with_defaults])
-    defaults = [default for _, default in fields.with_defaults]
+    return (tuple(fields.without_defaults + [name for name, default in
+                                             fields.with_defaults]),
+            [default for _, default in fields.with_defaults])
 
-    type_dict = {'__init__': _make_fn('__init__', _init, all_field_names, defaults),
+
+########################################################################
+# The actual namedlist factory function.
+def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
+              use_slots=True):
+
+    fields, defaults = _fields_and_defaults(typename, field_names, default, rename)
+
+    type_dict = {'__init__': _make_fn('__init__', _init, fields, defaults),
                  '__repr__': _repr,
                  '__eq__': _eq,
                  '__ne__': _ne,
@@ -324,14 +332,14 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
                  '__setitem__': _setitem,
                  '__iter__': _iter,
                  '__hash__': None,
-                 '__doc__': _build_docstring(typename, all_field_names, defaults),
+                 '__doc__': _build_docstring(typename, fields, defaults),
                  'count': _count,
                  'index': _index,
                  '_asdict': _asdict,
-                 '_fields': all_field_names}
+                 '_fields': fields}
 
     if use_slots:
-        type_dict['__slots__'] = all_field_names
+        type_dict['__slots__'] = fields
 
     # Create the new type object.
     t = type(typename, (object,), type_dict)
