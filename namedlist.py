@@ -43,6 +43,12 @@ import abc as _abc
 _PY2 = _sys.version_info[0] == 2
 _PY3 = _sys.version_info[0] == 3
 
+try:
+    _OrderedDict = _collections.OrderedDict
+except AttributeError:
+    _OrderedDict = None
+
+
 if _PY2:
     _basestring = basestring
 else:
@@ -156,7 +162,10 @@ def _len(self):
     return len(self._fields)
 
 def _asdict(self):
-    return dict((fieldname,  getattr(self, fieldname)) for fieldname in self._fields)
+    # In 2.6, return a dict.
+    # Otherwise, return an OrderedDict
+    t = _OrderedDict if _OrderedDict is not None else dict
+    return t(zip(self._fields, self))
 
 def _getstate(self):
     return tuple(getattr(self, fieldname) for fieldname in self._fields)
@@ -330,6 +339,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
                  '__getitem__': _getitem,
                  '__setitem__': _setitem,
                  '__iter__': _iter,
+                 '__dict__': property(_asdict),
                  '__hash__': None,
                  '__doc__': _build_docstring(typename, fields, defaults),
                  'count': _count,
@@ -351,7 +361,9 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
 
 
 if __name__ == '__main__':
+    import sys
     import unittest
+    import collections
     import unicodedata
 
     # test both pickle and cPickle in 2.x, but just pickle in 3.x
@@ -367,7 +379,7 @@ if __name__ == '__main__':
     TestNL = namedlist('TestNL', 'x y z')
 
     class TestNamedlist(unittest.TestCase):
-        # 2.6 is missing assertIsInstance and assertIn. Provide
+        # 2.6 is missing some unittest.TestCase members. Add
         #  trivial implementations for them.
         if not hasattr(unittest.TestCase, 'assertIsInstance'):
             def assertIsInstance(self, obj, cls):
@@ -375,6 +387,9 @@ if __name__ == '__main__':
         if not hasattr(unittest.TestCase, 'assertIn'):
             def assertIn(self, obj, iterable):
                 self.assertTrue(obj in iterable)
+        if not hasattr(unittest.TestCase, 'assertNotIn'):
+            def assertNotIn(self, obj, iterable):
+                self.assertTrue(not obj in iterable)
 
         def test_simple(self):
             Point = namedlist('Point', 'x y')
@@ -399,6 +414,18 @@ if __name__ == '__main__':
 
             self.assertEqual(Point(10, 11), Point(10, 11))
             self.assertNotEqual(Point(10, 11), Point(10, 12))
+
+            self.assertEqual(vars(p), p._asdict())                              # verify that vars() works
+
+        def test_asdict_vars_ordered(self):
+            Point = namedlist('Point', ['x', 'y'])
+            p = Point(10, 20)
+
+            # can't use unittest.skipIf in 2.6
+            if sys.version_info[0] <= 2 and sys.version_info[1] <= 6:
+                self.assertIsInstance(p.__dict__, dict)
+            else:
+                self.assertIsInstance(p.__dict__, collections.OrderedDict)
 
         def test_bad_name(self):
             self.assertRaises(ValueError, namedlist, 'Point*', 'x y')
@@ -581,6 +608,7 @@ if __name__ == '__main__':
                         q = module.loads(module.dumps(p, protocol))
                         self.assertEqual(p, q)
                         self.assertEqual(p._fields, q._fields)
+                        self.assertNotIn(b'OrderedDict', module.dumps(p, protocol))
 
         def test_type_has_same_name_as_field(self):
             Point = namedlist('Point',
