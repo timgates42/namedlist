@@ -1,6 +1,11 @@
 Change log
 ==========
 
+1.1 <unreleased> Eric V. Smith
+----------------------------
+
+* Added __dict__ so vars() will be supported.
+
 1.0 2014-02-04 Eric V. Smith
 ----------------------------
 

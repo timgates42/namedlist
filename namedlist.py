@@ -575,7 +575,7 @@ if __name__ == '__main__':
             self.assertIsInstance(Point._fields, tuple)
 
         def test_pickle(self):
-            for p in (TestNL0(), TestLT(x=10, y=20, z=30)):
+            for p in (TestNL0(), TestNL(x=10, y=20, z=30)):
                 for module in pickle_modules:
                     for protocol in range(-1, module.HIGHEST_PROTOCOL + 1):
                         q = module.loads(module.dumps(p, protocol))
