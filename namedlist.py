@@ -363,8 +363,8 @@ if __name__ == '__main__':
         pickle_modules = (pickle,)
 
     # types used for pickle tests
-    TestNT0 = namedlist('TestNT0', '')
-    TestNT = namedlist('TestNT', 'x y z')
+    TestNL0 = namedlist('TestNL0', '')
+    TestNL = namedlist('TestNL', 'x y z')
 
     class TestNamedlist(unittest.TestCase):
         # 2.6 is missing assertIsInstance and assertIn. Provide
@@ -575,7 +575,7 @@ if __name__ == '__main__':
             self.assertIsInstance(Point._fields, tuple)
 
         def test_pickle(self):
-            for p in (TestNT0(), TestNT(x=10, y=20, z=30)):
+            for p in (TestNL0(), TestLT(x=10, y=20, z=30)):
                 for module in pickle_modules:
                     for protocol in range(-1, module.HIGHEST_PROTOCOL + 1):
                         q = module.loads(module.dumps(p, protocol))
