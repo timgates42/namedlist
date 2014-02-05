@@ -57,9 +57,6 @@ class FACTORY(object):
     def __init__(self, callable):
         self._callable = callable
 
-    def __call__(self):
-        return self._callable()
-
     def __repr__(self):
         return 'FACTORY({0!r})'.format(self._callable)
 
@@ -199,7 +196,7 @@ def _init(self, *args):
         if isinstance(value, FACTORY):
             # instead of using the default value, it's really a
             #  factory function: call it
-            value = value()
+            value = value._callable()
         setattr(self, fieldname, value)
 
 
