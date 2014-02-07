@@ -14,7 +14,7 @@ the following differences:
 * namedlist supports per-field default values.
 
 * namedlist supports an optional default value, to be used by all
-  fields do not have an explicit default value.
+  fields that do not have an explicit default value.
 
 Typical usage
 =============
