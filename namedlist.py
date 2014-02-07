@@ -350,6 +350,13 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
     if use_slots:
         type_dict['__slots__'] = fields
 
+    # See collections.namedtuple for a description of
+    #  what's happening here
+    try:
+        type_dict['__module__'] = _sys._getframe(1).f_globals.get('__name__', '__main__')
+    except (AttributeError, ValueError):
+        pass
+
     # Create the new type object.
     t = type(typename, (object,), type_dict)
 
