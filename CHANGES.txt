@@ -6,6 +6,8 @@ Change log
 
 * Added __dict__ so vars() will be supported.
 
+* Fixed pickling from another module (issue #14).
+
 1.0 2014-02-04 Eric V. Smith
 ----------------------------
 
@@ -13,13 +15,6 @@ Change log
 
 * Support python 2.6 (issue #8). The doctests don't pass because
   OrderedDict isn't available until 2.7.
-
-0.4 2014-02-04 Eric V. Smith
-----------------------------
-
-* Add docstring (issue #7).
-
-* Fixed README.txt typos (thanks pombredanne on bitbucket).
 
 0.4 2014-02-04 Eric V. Smith
 ----------------------------
