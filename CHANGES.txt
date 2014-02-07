@@ -8,6 +8,8 @@ Change log
 
 * Fixed pickling from another module (issue #14).
 
+* Moved tests to a separate file (issue #15).
+
 1.0 2014-02-04 Eric V. Smith
 ----------------------------
 

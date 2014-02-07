@@ -10,7 +10,7 @@ class PyTest(Command):
         pass
     def run(self):
         import sys, subprocess
-        tests = [('test suite', ['namedlist.py']),
+        tests = [('test suite', ['-m', 'test.test_namedlist']),
                  ]
         if sys.hexversion >= 0x02070000:
             tests.append(('doctests',   ['-m' 'doctest', 'README.txt']))
