@@ -1,7 +1,7 @@
 Change log
 ==========
 
-1.2 <unreleased> Eric V. Smith
+1.2 2014-02-13 Eric V. Smith
 ----------------------------
 
 * Produce an RPM named python-namedlist (issue #17).

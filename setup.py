@@ -26,9 +26,8 @@ class PyTest(Command):
     def run(self):
         import sys, subprocess
         tests = [('test suite', ['-m', 'test.test_namedlist']),
+                 ('doctests',   ['-m' 'doctest', 'README.txt']),
                  ]
-        if sys.hexversion >= 0x02070000:
-            tests.append(('doctests',   ['-m' 'doctest', 'README.txt']))
         for name, cmds in tests:
             print(name)
             errno = subprocess.call([sys.executable] + cmds)
@@ -38,7 +37,7 @@ class PyTest(Command):
 
 
 setup(name=name,
-      version='1.1',
+      version='1.2',
       url='https://bitbucket.org/ericvsmith/namedlist',
       author='Eric V. Smith',
       author_email='eric@trueblade.com',
