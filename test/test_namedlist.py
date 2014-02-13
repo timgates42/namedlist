@@ -679,6 +679,26 @@ class TestNamedTuple(unittest.TestCase):
         self.assertEqual(repr(B(1)), 'B(x=1)')
 
 
+class TestAll(unittest.TestCase):
+    def test_all(self):
+        import namedlist
+
+        # check that __all__ in the module contains everything that should be
+        #  public, and only those symbols
+        all = set(namedlist.__all__)
+
+        # check that things in __all__ only appear once
+        self.assertEqual(len(all), len(namedlist.__all__),
+                         'some symbols appear more than once in __all__')
+
+        # get the list of public symbols
+        found = set(name for name in dir(namedlist) if not name.startswith('_'))
+
+        # make sure it matches __all__
+        self.assertEqual(all, found)
+
+
+
 # 2.6 is missing some unittest.TestCase members. Add
 #  trivial implementations for them.
 def _assertIsInstance(self, obj, cls):
