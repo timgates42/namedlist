@@ -1,6 +1,14 @@
 Change log
 ==========
 
+1.2 <unreleased> Eric V. Smith
+----------------------------
+
+* Add namedtuple (issue #10). Passes all of the collections.namedtuple
+  tests, except those related to _source. Those tests don't apply
+  given our different approach to dynamic class creation. All other
+  collections.namedtuple tests have been copied to our test suite.
+
 1.1 2014-02-07 Eric V. Smith
 ----------------------------
 
