@@ -24,7 +24,7 @@
 #
 ########################################################################
 
-__all__ = ['namedlist', 'NO_DEFAULT', 'FACTORY']
+__all__ = ['namedlist', 'namedtuple', 'NO_DEFAULT', 'FACTORY']
 
 # All of this hassle with ast is solely to provide a decent __init__
 #  function, that takes all of the right arguments and defaults. But
