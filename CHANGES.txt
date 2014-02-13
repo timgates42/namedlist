@@ -4,6 +4,8 @@ Change log
 1.2 <unreleased> Eric V. Smith
 ----------------------------
 
+* Produce an RPM named python-namedlist (issue #17).
+
 * Add namedtuple (issue #10). Passes all of the collections.namedtuple
   tests, except those related to _source. Those tests don't apply
   given our different approach to dynamic class creation. All other
