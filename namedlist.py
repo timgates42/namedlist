@@ -1,5 +1,8 @@
 #######################################################################
-# Similar to namedtuple, but supports default values and is writable.
+# namedlist is similar to collections.namedtuple, but supports default
+#  values and is writable.  Also contains an implementation of
+#  namedtuple, which is the same as collections.namedtuple supporting
+#  defaults.
 #
 # Copyright 2011-2014 True Blade Systems, Inc.
 #
@@ -33,6 +36,7 @@ __all__ = ['namedlist', 'NO_DEFAULT', 'FACTORY']
 
 import ast as _ast
 import sys as _sys
+import operator as _operator
 from keyword import iskeyword as _iskeyword
 import collections as _collections
 import abc as _abc
@@ -144,77 +148,12 @@ class _NameChecker(object):
 
 
 ########################################################################
-# Member functions for the generated class.
-
-def _repr(self):
-    return '{0}({1})'.format(self.__class__.__name__, ', '.join('{0}={1!r}'.format(name, getattr(self, name)) for name in self._fields))
-
-def _eq(self, other):
-    return isinstance(other, self.__class__) and all(getattr(self, name) == getattr(other, name) for name in self._fields)
-
-def _ne(self, other):
-    return not _eq(self, other)
-
-def _len(self):
-    return len(self._fields)
-
-def _asdict(self):
-    # In 2.6, return a dict.
-    # Otherwise, return an OrderedDict
-    t = _OrderedDict if _OrderedDict is not None else dict
-    return t(zip(self._fields, self))
-
-def _getstate(self):
-    return tuple(getattr(self, fieldname) for fieldname in self._fields)
-
-def _setstate(self, state):
-    for fieldname, value in zip(self._fields, state):
-        setattr(self, fieldname, value)
-
-def _getitem(self, idx):
-    return getattr(self, self._fields[idx])
-
-def _setitem(self, idx, value):
-    return setattr(self, self._fields[idx], value)
-
-def _iter(self):
-    return (getattr(self, fieldname) for fieldname in self._fields)
-
-def _count(self, value):
-    return sum(1 for v in iter(self) if v == value)
-
-def _index(self, value, start=NO_DEFAULT, stop=NO_DEFAULT):
-    # not the most efficient way to implement this, but it will work
-    l = list(self)
-    if start is NO_DEFAULT and stop is NO_DEFAULT:
-        return l.index(value)
-    if stop is NO_DEFAULT:
-        return l.index(value, start)
-    return l.index(value, start, stop)
-
-########################################################################
-# The function that __init__ calls to do the actual work.
-
-def _init(self, *args):
-    # sets all of the fields to their passed in values
-    for fieldname, value in _get_values(self._fields, args):
-        setattr(self, fieldname, value)
-
-
-def _get_values(fields, args):
-    # Returns [(fieldname, value)]. If the value is a FACTORY, call it.
-    assert len(fields) == len(args)
-    return [(fieldname, (value._callable() if isinstance(value, FACTORY) else value))
-            for fieldname, value in zip(fields, args)]
-
-
-########################################################################
 # Returns a function with name 'name', that calls another function 'chain_fn'
 # This is used to create the __init__ function with the right argument names and defaults, that
 #  calls into _init to do the real work.
 # The new function takes args as arguments, with defaults as given.
 def _make_fn(name, chain_fn, args, defaults):
-    args_with_self = ['self'] + list(args)
+    args_with_self = ['_self'] + list(args)
     arguments = [_ast.Name(id=arg, ctx=_ast.Load()) for arg in args_with_self]
     defs = [_ast.Name(id='_def{0}'.format(idx), ctx=_ast.Load()) for idx, _ in enumerate(defaults)]
     if _PY2:
@@ -281,8 +220,8 @@ def _fields_and_defaults(typename, field_names, default, rename):
     name_checker = _NameChecker(typename)
 
     if isinstance(field_names, _basestring):
-        # No per-field defaults. So it's like a namedtuple, but with
-        #  a possible default value.
+        # No per-field defaults. So it's like a collections.namedtuple,
+        #  but with a possible default value.
         field_names = field_names.replace(',', ' ').split()
 
     # If field_names is a Mapping, change it to return the
@@ -318,41 +257,106 @@ def _fields_and_defaults(typename, field_names, default, rename):
                                              fields.with_defaults]),
             [default for _, default in fields.with_defaults])
 
+########################################################################
+# Common member functions for the generated classes.
+
+def _repr(self):
+    return '{0}({1})'.format(self.__class__.__name__, ', '.join('{0}={1!r}'.format(name, getattr(self, name)) for name in self._fields))
+
+def _asdict(self):
+    # In 2.6, return a dict.
+    # Otherwise, return an OrderedDict
+    t = _OrderedDict if _OrderedDict is not None else dict
+    return t(zip(self._fields, self))
+
+# Set up methods and fields shared by namedlist and namedtuple
+def _common_fields(fields, docstr):
+    type_dict = {'__repr__': _repr,
+                 '__dict__': property(_asdict),
+                 '__doc__': docstr,
+                 '_asdict': _asdict,
+                 '_fields': fields}
+
+    # See collections.namedtuple for a description of
+    #  what's happening here.
+    # _getframe(2) instead of 1, because we're now inside
+    #  another function.
+    try:
+        type_dict['__module__'] = _sys._getframe(2).f_globals.get('__name__', '__main__')
+    except (AttributeError, ValueError):
+        pass
+    return type_dict
+
+
+########################################################################
+# namedlist methods
+
+# The function that __init__ calls to do the actual work.
+def _nl_init(self, *args):
+    # sets all of the fields to their passed in values
+    for fieldname, value in _get_values(self._fields, args):
+        setattr(self, fieldname, value)
+
+def _nl_eq(self, other):
+    return isinstance(other, self.__class__) and all(getattr(self, name) == getattr(other, name) for name in self._fields)
+
+def _nl_ne(self, other):
+    return not _nl_eq(self, other)
+
+def _nl_len(self):
+    return len(self._fields)
+
+def _nl_getstate(self):
+    return tuple(getattr(self, fieldname) for fieldname in self._fields)
+
+def _nl_setstate(self, state):
+    for fieldname, value in zip(self._fields, state):
+        setattr(self, fieldname, value)
+
+def _nl_getitem(self, idx):
+    return getattr(self, self._fields[idx])
+
+def _nl_setitem(self, idx, value):
+    return setattr(self, self._fields[idx], value)
+
+def _nl_iter(self):
+    return (getattr(self, fieldname) for fieldname in self._fields)
+
+def _nl_count(self, value):
+    return sum(1 for v in iter(self) if v == value)
+
+def _nl_index(self, value, start=NO_DEFAULT, stop=NO_DEFAULT):
+    # not the most efficient way to implement this, but it will work
+    l = list(self)
+    if start is NO_DEFAULT and stop is NO_DEFAULT:
+        return l.index(value)
+    if stop is NO_DEFAULT:
+        return l.index(value, start)
+    return l.index(value, start, stop)
+
 
 ########################################################################
 # The actual namedlist factory function.
 def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
               use_slots=True):
-
     fields, defaults = _fields_and_defaults(typename, field_names, default, rename)
 
-    type_dict = {'__init__': _make_fn('__init__', _init, fields, defaults),
-                 '__repr__': _repr,
-                 '__eq__': _eq,
-                 '__ne__': _ne,
-                 '__len__': _len,
-                 '__getstate__': _getstate,
-                 '__setstate__': _setstate,
-                 '__getitem__': _getitem,
-                 '__setitem__': _setitem,
-                 '__iter__': _iter,
-                 '__dict__': property(_asdict),
+    type_dict = {'__init__': _make_fn('__init__', _nl_init, fields, defaults),
+                 '__eq__': _nl_eq,
+                 '__ne__': _nl_ne,
+                 '__len__': _nl_len,
+                 '__getstate__': _nl_getstate,
+                 '__setstate__': _nl_setstate,
+                 '__getitem__': _nl_getitem,
+                 '__setitem__': _nl_setitem,
+                 '__iter__': _nl_iter,
                  '__hash__': None,
-                 '__doc__': _build_docstring(typename, fields, defaults),
-                 'count': _count,
-                 'index': _index,
-                 '_asdict': _asdict,
-                 '_fields': fields}
+                 'count': _nl_count,
+                 'index': _nl_index}
+    type_dict.update(_common_fields(fields, _build_docstring(typename, fields, defaults)))
 
     if use_slots:
         type_dict['__slots__'] = fields
-
-    # See collections.namedtuple for a description of
-    #  what's happening here
-    try:
-        type_dict['__module__'] = _sys._getframe(1).f_globals.get('__name__', '__main__')
-    except (AttributeError, ValueError):
-        pass
 
     # Create the new type object.
     t = type(typename, (object,), type_dict)
@@ -362,3 +366,59 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
 
     # And return it.
     return t
+
+
+########################################################################
+# namedtuple methods
+def _nt_new(cls, *args):
+    # sets all of the fields to their passed in values
+    assert len(args) == len(cls._fields)
+    values = [value for _, value in _get_values(cls._fields, args)]
+    return tuple.__new__(cls, values)
+
+def _nt_replace(_self, **kwds):
+    result = _self._make(map(kwds.pop, _self._fields, _self))
+    if kwds:
+        raise ValueError('Got unexpected field names: %r' % list(kwds))
+    return result
+
+def _nt_make(cls, iterable, new=tuple.__new__):
+    result = new(cls, iterable)
+    if len(result) != len(cls._fields):
+        raise TypeError('Expected {0} arguments, got {1}'.format(len(cls._fields), len(result)))
+    return result
+
+def _nt_getnewargs(self):
+    'Return self as a plain tuple.  Used by copy and pickle.'
+    return tuple(self)
+
+def _nt_getstate(self):
+    'Exclude the OrderedDict from pickling'
+    return None
+
+def _get_values(fields, args):
+    # Returns [(fieldname, value)]. If the value is a FACTORY, call it.
+    assert len(fields) == len(args)
+    return [(fieldname, (value._callable() if isinstance(value, FACTORY) else value))
+            for fieldname, value in zip(fields, args)]
+
+########################################################################
+# The actual namedtuple factory function.
+def namedtuple(typename, field_names, default=NO_DEFAULT, rename=False):
+    fields, defaults = _fields_and_defaults(typename, field_names, default, rename)
+
+    type_dict = {'__new__': _make_fn('__new__', _nt_new, fields, defaults),
+                 '__getnewargs__': _nt_getnewargs,
+                 '__getstate__': _nt_getstate,
+                 '_replace': _nt_replace,
+                 '_make': classmethod(_nt_make),
+                 '__slots__': ()}
+    type_dict.update(_common_fields(fields, _build_docstring(typename, fields, defaults)))
+
+    # Create each field property.
+    for idx, field in enumerate(fields):
+        type_dict[field] = property(_operator.itemgetter(idx),
+                                    doc='Alias for field number {0}'.format(idx))
+
+    # Create the new type object.
+    return type(typename, (tuple,), type_dict)
