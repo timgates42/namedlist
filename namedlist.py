@@ -251,7 +251,8 @@ def _fields_and_defaults(typename, field_names, default, rename):
 
         # Okay: now we have the field_name and the default value (if any).
         # Validate the name, and add the field.
-        fields.add(name_checker.check_field_name(field_name, rename, idx), default)
+        # Convert field_name to str for python 2.x
+        fields.add(name_checker.check_field_name(str(field_name), rename, idx), default)
 
     return (tuple(fields.without_defaults + [name for name, default in
                                              fields.with_defaults]),
@@ -339,6 +340,7 @@ def _nl_index(self, value, start=NO_DEFAULT, stop=NO_DEFAULT):
 # The actual namedlist factory function.
 def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
               use_slots=True):
+    typename = str(typename) # for python 2.x
     fields, defaults = _fields_and_defaults(typename, field_names, default, rename)
 
     type_dict = {'__init__': _make_fn('__init__', _nl_init, fields, defaults),
@@ -405,6 +407,7 @@ def _get_values(fields, args):
 ########################################################################
 # The actual namedtuple factory function.
 def namedtuple(typename, field_names, default=NO_DEFAULT, rename=False):
+    typename = str(typename) # for python 2.x
     fields, defaults = _fields_and_defaults(typename, field_names, default, rename)
 
     type_dict = {'__new__': _make_fn('__new__', _nt_new, fields, defaults),

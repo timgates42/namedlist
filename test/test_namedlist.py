@@ -71,6 +71,12 @@ class TestNamedList(unittest.TestCase):
 
         self.assertEqual(vars(p), p._asdict())                              # verify that vars() works
 
+    def test_unicode_identifiers(self):
+        Point = namedlist(u'Point', u'x y')
+        p = Point(10, 20)
+        self.assertEqual((p.x, p.y), (10, 20))
+        self.assertEqual(p._asdict(), {'x':10, 'y':20})
+
     def test_asdict_vars_ordered(self):
         Point = namedlist('Point', ['x', 'y'])
         p = Point(10, 20)
@@ -499,6 +505,12 @@ class TestNamedList(unittest.TestCase):
 TestNT = namedtuple('TestNT', 'x y z')    # type used for pickle tests
 
 class TestNamedTuple(unittest.TestCase):
+
+    def test_unicode_identifiers(self):
+        Point = namedtuple(u'Point', u'x y')
+        p = Point(10, 20)
+        self.assertEqual((p.x, p.y), (10, 20))
+        self.assertEqual(p._asdict(), {'x':10, 'y':20})
 
     def test_factory(self):
         Point = namedtuple('Point', 'x y')
