@@ -1,6 +1,11 @@
 Change log
 ==========
 
+1.5 2014-05-20 Eric V. Smith
+----------------------------
+
+* Support slices in namedlist.__getattr__ (issue #22).
+
 1.4 2014-03-14 Eric V. Smith
 ----------------------------
 

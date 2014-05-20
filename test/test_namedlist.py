@@ -501,6 +501,15 @@ class TestNamedList(unittest.TestCase):
         Point = namedlist('Point', ['dx', 'dy', ('dz', FACTORY(11.0))], default=[])
         self.assertEqual(Point.__doc__, 'Point(dx=[], dy=[], dz=FACTORY(11.0))')
 
+    def test_slice(self):
+        Point = namedlist('Point', 'x y z color')
+        values = [3, 5, -12, 'red']
+        p = Point(*values)
+        self.assertEqual(values[0:-1], p[0:-1])
+        self.assertEqual(values[:3], p[:3])
+        self.assertEqual(values[4:1:-1], p[4:1:-1])
+
+
 
 TestNT = namedtuple('TestNT', 'x y z')    # type used for pickle tests
 

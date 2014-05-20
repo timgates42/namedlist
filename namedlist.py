@@ -315,6 +315,10 @@ def _nl_setstate(self, state):
         setattr(self, fieldname, value)
 
 def _nl_getitem(self, idx):
+    if isinstance(idx, slice):
+        # this isn't super-efficient, but works
+        return [getattr(self, self._fields[i]) for i in range(*idx.indices(len(self._fields)))]
+
     return getattr(self, self._fields[idx])
 
 def _nl_setitem(self, idx, value):
