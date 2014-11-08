@@ -223,6 +223,58 @@ class TestNamedList(unittest.TestCase):
         p.z = None
         self.assertEqual((p.x, p.y, p.z), (-1, -1, None))
 
+    def test_update_nothing(self):
+        Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
+
+        a = Point(1)
+        a.update()
+        self.assertEqual((a.x, a.y, a.z), (1, 10, 20))
+
+    def test_update_other_named_list(self):
+        Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
+
+        a = Point(10)
+        b = Point(100, 200, 300)
+        a.update(b)
+
+        self.assertEqual((a.x, a.y, a.z), (100, 200, 300))
+        self.assertIsNot(a, b)
+
+    def test_update_other_pairs(self):
+        Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
+
+        a = Point(10)
+        a.update([('y', 23), ('z', 42)])
+        self.assertEqual((a.x, a.y, a.z), (10, 23, 42))
+
+    def test_update_other_dict(self):
+        Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
+
+        a = Point(10)
+        a.update({'x': 32, 'y': 64})
+        self.assertEqual((a.x, a.y, a.z), (32, 64, 20))
+
+    def test_update_other_kwargs(self):
+        Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
+
+        a = Point(10)
+        a.update(x=60, z=90)
+        self.assertEqual((a.x, a.y, a.z), (60, 10, 90))
+
+    def test_update_other_pairs_kwargs(self):
+        Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
+
+        a = Point(10)
+        a.update([('y', 23)], z=42)
+        self.assertEqual((a.x, a.y, a.z), (10, 23, 42))
+
+    def test_update_other_dict_kwargs(self):
+        Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
+
+        a = Point(10)
+        a.update({'x': 32}, y=64)
+        self.assertEqual((a.x, a.y, a.z), (32, 64, 20))
+
     def test_complex_defaults(self):
         Point = namedlist('Point', ['x', ('y', 10), ('z', 20)],
                            [1, 2, 3])

@@ -37,6 +37,7 @@ __all__ = ['namedlist', 'namedtuple', 'NO_DEFAULT', 'FACTORY']
 import ast as _ast
 import sys as _sys
 import operator as _operator
+import itertools as _itertools
 from keyword import iskeyword as _iskeyword
 import collections as _collections
 import abc as _abc
@@ -52,8 +53,10 @@ except AttributeError:
 
 if _PY2:
     _basestring = basestring
+    _iteritems = lambda d, **kw: iter(d.iteritems(**kw))
 else:
     _basestring = str
+    _iteritems = lambda d, **kw: iter(d.items(**kw))
 
 
 NO_DEFAULT = object()
@@ -339,6 +342,26 @@ def _nl_index(self, value, start=NO_DEFAULT, stop=NO_DEFAULT):
         return l.index(value, start)
     return l.index(value, start, stop)
 
+def _nl_update(self, other=None, **kwargs):
+    if isinstance(other, type(self)):
+        other = zip(self._fields, other)
+    elif isinstance(other, _collections.Mapping):
+        other_ = []
+        for field_name in self._fields:
+            try:
+                other_value = other[field_name]
+            except KeyError:
+                pass
+            else:
+                other_.append((field_name, other_value, ))
+        other = other_
+    elif other is None:
+        other = []
+
+    chained = _itertools.chain(other, (x for x in _iteritems(kwargs)
+                                       if x[0] in self._fields))
+    for key, value in chained:
+        setattr(self, key, value)
 
 ########################################################################
 # The actual namedlist factory function.
@@ -358,7 +381,8 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
                  '__iter__': _nl_iter,
                  '__hash__': None,
                  'count': _nl_count,
-                 'index': _nl_index}
+                 'index': _nl_index,
+                 'update': _nl_update}
     type_dict.update(_common_fields(fields, _build_docstring(typename, fields, defaults)))
 
     if use_slots:
