@@ -342,26 +342,26 @@ def _nl_index(self, value, start=NO_DEFAULT, stop=NO_DEFAULT):
         return l.index(value, start)
     return l.index(value, start, stop)
 
-def _nl_update(self, other=None, **kwargs):
-    if isinstance(other, type(self)):
-        other = zip(self._fields, other)
-    elif isinstance(other, _collections.Mapping):
+def _nl_update(_self, _other=None, **kwargs):
+    if isinstance(_other, type(_self)):
+        _other = zip(_self._fields, _other)
+    elif isinstance(_other, _collections.Mapping):
         other_ = []
-        for field_name in self._fields:
+        for field_name in _self._fields:
             try:
-                other_value = other[field_name]
+                other_value = _other[field_name]
             except KeyError:
                 pass
             else:
                 other_.append((field_name, other_value, ))
-        other = other_
-    elif other is None:
-        other = []
+        _other = other_
+    elif _other is None:
+        _other = []
 
-    chained = _itertools.chain(other, (x for x in _iteritems(kwargs)
-                                       if x[0] in self._fields))
+    chained = _itertools.chain(_other, (x for x in _iteritems(kwargs)
+                                        if x[0] in _self._fields))
     for key, value in chained:
-        setattr(self, key, value)
+        setattr(_self, key, value)
 
 ########################################################################
 # The actual namedlist factory function.
@@ -382,7 +382,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
                  '__hash__': None,
                  'count': _nl_count,
                  'index': _nl_index,
-                 'update': _nl_update}
+                 '_update': _nl_update}
     type_dict.update(_common_fields(fields, _build_docstring(typename, fields, defaults)))
 
     if use_slots:

@@ -227,7 +227,7 @@ class TestNamedList(unittest.TestCase):
         Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
 
         a = Point(1)
-        a.update()
+        a._update()
         self.assertEqual((a.x, a.y, a.z), (1, 10, 20))
 
     def test_update_other_named_list(self):
@@ -235,7 +235,7 @@ class TestNamedList(unittest.TestCase):
 
         a = Point(10)
         b = Point(100, 200, 300)
-        a.update(b)
+        a._update(b)
 
         self.assertEqual((a.x, a.y, a.z), (100, 200, 300))
         self.assertIsNot(a, b)
@@ -244,36 +244,44 @@ class TestNamedList(unittest.TestCase):
         Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
 
         a = Point(10)
-        a.update([('y', 23), ('z', 42)])
+        a._update([('y', 23), ('z', 42)])
         self.assertEqual((a.x, a.y, a.z), (10, 23, 42))
 
     def test_update_other_dict(self):
         Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
 
         a = Point(10)
-        a.update({'x': 32, 'y': 64})
+        a._update({'x': 32, 'y': 64})
         self.assertEqual((a.x, a.y, a.z), (32, 64, 20))
 
     def test_update_other_kwargs(self):
         Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
 
         a = Point(10)
-        a.update(x=60, z=90)
+        a._update(x=60, z=90)
         self.assertEqual((a.x, a.y, a.z), (60, 10, 90))
 
     def test_update_other_pairs_kwargs(self):
         Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
 
         a = Point(10)
-        a.update([('y', 23)], z=42)
+        a._update([('y', 23)], z=42)
         self.assertEqual((a.x, a.y, a.z), (10, 23, 42))
 
     def test_update_other_dict_kwargs(self):
         Point = namedlist('Point', ['x', ('y', 10), ('z', 20)], 100)
 
         a = Point(10)
-        a.update({'x': 32}, y=64)
+        a._update({'x': 32}, y=64)
         self.assertEqual((a.x, a.y, a.z), (32, 64, 20))
+
+    def test_update_other_self_kwarg(self):
+        # make sure 'self' and 'other' work as kwargs
+        Point = namedlist('Point', 'self other')
+
+        a = Point(1, 0)
+        a._update(self=10, other=20)
+        self.assertEqual((a.self, a.other), (10, 20))
 
     def test_complex_defaults(self):
         Point = namedlist('Point', ['x', ('y', 10), ('z', 20)],
