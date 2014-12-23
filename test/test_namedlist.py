@@ -283,6 +283,23 @@ class TestNamedList(unittest.TestCase):
         a._update(self=10, other=20)
         self.assertEqual((a.self, a.other), (10, 20))
 
+    def test_replace_none(self):
+        Point = namedlist('Point', 'x y z')
+        a = Point(1, 2, 3)
+        b = a._replace()
+        self.assertIsNot(a, b)
+        self.assertEqual((a.x, a.y, a.z), (1, 2, 3))
+        self.assertEqual((b.x, b.y, b.z), (1, 2, 3))
+
+    def test_replace_none(self):
+        # make sure 'self' and 'other' work as kwargs
+        Point = namedlist('Point', 'self other')
+        a = Point(1, 2)
+        b = a._replace(self=3, other=4)
+        self.assertIsNot(a, b)
+        self.assertEqual((a.self, a.other), (1, 2))
+        self.assertEqual((b.self, b.other), (3, 4))
+
     def test_complex_defaults(self):
         Point = namedlist('Point', ['x', ('y', 10), ('z', 20)],
                           [1, 2, 3])
