@@ -1,6 +1,12 @@
 Change log
 ==========
 
+1.x <unreleased> Eric V. Smith
+------------------------------
+
+* Add support for namedlist._update(), similar to
+  dict.update(). Thanks to Arthur Skowronek (issue #23).
+
 1.5 2014-05-20 Eric V. Smith
 ----------------------------
 

@@ -300,6 +300,32 @@ the same way. Values are returned in definition order::
     3.14
     2.71828
 
+
+namedlist specific functions
+============================
+
+_update
+-------
+
+`namedlist._update()` is similar to `dict.update()`. It is used to
+mutate a namedlist.namedlist instance with new values::
+
+    >>> Point = namedlist('Point', 'x y z')
+    >>> p = Point(1, 2, 3)
+    >>> p.z = 4
+    >>> p._update(y=5, x=6)
+    >>> p
+    Point(x=6, y=5, z=4)
+
+    >>> p._update({'x': 7, 'z': 8})
+    >>> p
+    Point(x=7, y=5, z=8)
+
+    >>> p._update([('z', 9), ('y', 10)])
+    >>> p
+    Point(x=7, y=10, z=9)
+
+
 Creating and using instances
 ============================
 
