@@ -285,13 +285,13 @@ class TestNamedList(unittest.TestCase):
 
     def test_complex_defaults(self):
         Point = namedlist('Point', ['x', ('y', 10), ('z', 20)],
-                           [1, 2, 3])
+                          [1, 2, 3])
         p = Point()
         self.assertEqual((p.x, p.y, p.z), ([1, 2, 3], 10, 20))
 
         Point = namedlist('Point', [('x', [4, 5, 6]),
-                                     ('y', 10),
-                                     ('z', 20)])
+                                    ('y', 10),
+                                    ('z', 20)])
         p = Point()
         self.assertEqual((p.x, p.y, p.z), ([4, 5, 6], 10, 20))
 
