@@ -347,15 +347,15 @@ def _nl_update(_self, _other=None, **kwds):
     if isinstance(_other, type(_self)):
         _other = zip(_self._fields, _other)
     elif isinstance(_other, _collections.Mapping):
-        other_ = []
+        tmp = []
         for field_name in _self._fields:
             try:
                 other_value = _other[field_name]
             except KeyError:
                 pass
             else:
-                other_.append((field_name, other_value))
-        _other = other_
+                tmp.append((field_name, other_value))
+        _other = tmp
     elif _other is None:
         _other = []
 
