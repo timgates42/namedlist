@@ -37,7 +37,7 @@ class PyTest(Command):
 
 
 setup(name=name,
-      version='1.5',
+      version='1.5+',
       url='https://bitbucket.org/ericvsmith/namedlist',
       author='Eric V. Smith',
       author_email='eric@trueblade.com',
