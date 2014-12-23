@@ -1,13 +1,13 @@
 Change log
 ==========
 
-1.x <unreleased> Eric V. Smith
-------------------------------
+1.6 2014-12-23 Eric V. Smith
+----------------------------
 
 * Add namedlist._update(), similar to dict.update(). Thanks to Arthur
   Skowronek (issue #23).
 
-* Add namedlist._replace(), simpilar to namedtuple._replace (issue
+* Add namedlist._replace(), similar to namedtuple._replace (issue
   #24).
 
 1.5 2014-05-20 Eric V. Smith
