@@ -354,7 +354,7 @@ def _nl_update(_self, _other=None, **kwds):
             except KeyError:
                 pass
             else:
-                other_.append((field_name, other_value, ))
+                other_.append((field_name, other_value))
         _other = other_
     elif _other is None:
         _other = []
