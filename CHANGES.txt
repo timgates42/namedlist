@@ -1,6 +1,13 @@
 Change log
 ==========
 
+1.7 2015-05-15 Eric V. Smith
+----------------------------
+
+* Changed RPM name to python3-namedlist if running with python 3.
+
+* No code changes.
+
 1.6 2014-12-23 Eric V. Smith
 ----------------------------
 
