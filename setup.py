@@ -13,7 +13,7 @@ import sys
 
 name = 'namedlist'
 if 'bdist_rpm' in sys.argv:
-    name = 'python-' + name
+    name = 'python{0}-{1}'.format('' if sys.version_info.major == 2 else '3', name)
 
 
 # run our tests
@@ -37,7 +37,7 @@ class PyTest(Command):
 
 
 setup(name=name,
-      version='1.6',
+      version='1.7',
       url='https://bitbucket.org/ericvsmith/namedlist',
       author='Eric V. Smith',
       author_email='eric@trueblade.com',
