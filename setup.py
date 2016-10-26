@@ -1,5 +1,5 @@
 from __future__ import print_function
-from distutils.core import setup, Command
+from setuptools import setup, Command
 import sys
 
 # This is a hack in order to get the package name to be different when
@@ -37,7 +37,7 @@ class PyTest(Command):
 
 
 setup(name=name,
-      version='1.7',
+      version='1.8a1',
       url='https://bitbucket.org/ericvsmith/namedlist',
       author='Eric V. Smith',
       author_email='eric@trueblade.com',
@@ -51,6 +51,7 @@ setup(name=name,
                    'Programming Language :: Python :: 2.7',
                    'Programming Language :: Python :: 3.3',
                    'Programming Language :: Python :: 3.4',
+                   'Programming Language :: Python :: 3.5',
                    ],
       license='Apache License Version 2.0',
       py_modules=['namedlist'],
