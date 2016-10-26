@@ -1,20 +1,5 @@
 from __future__ import print_function
 from setuptools import setup, Command
-import sys
-
-# This is a hack in order to get the package name to be different when
-#  building an RPM file. When 'setup.py bdist_rpm' is called, it invokes
-#  setup.py twice more, with these command lines:
-# ['setup.py', 'build']
-# ['setup.py', 'install', '-O1', '--root=/home/eric/local/toposort/build/bdist.linux-i686/rpm/BUILDROOT/python-toposort-0.1-1.i386', '--record=INSTALLED_FILES']
-# It's only on the original call (when bdist_rpm is in sys.argv) that
-#  I adjust the package name. With Python 2.7, that's enough. I'm not
-#  sure about 3.x.
-
-name = 'namedlist'
-if 'bdist_rpm' in sys.argv:
-    name = 'python{0}-{1}'.format('' if sys.version_info.major == 2 else '3', name)
-
 
 # run our tests
 class PyTest(Command):
@@ -36,8 +21,8 @@ class PyTest(Command):
         print('test complete')
 
 
-setup(name=name,
-      version='1.8a1',
+setup(name='namedlist',
+      version='1.8a2',
       url='https://bitbucket.org/ericvsmith/namedlist',
       author='Eric V. Smith',
       author_email='eric@trueblade.com',

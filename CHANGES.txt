@@ -6,6 +6,9 @@ Change log
 
 * Require setuptools, and specify universal wheels (issue #30).
 
+* Drop code for bdist_rpm that tried to change the RPM name to
+  python-namedlist (issue #31).
+
 1.7 2015-05-15 Eric V. Smith
 ----------------------------
 
