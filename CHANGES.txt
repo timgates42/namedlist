@@ -1,6 +1,11 @@
 Change log
 ==========
 
+1.8 <unreleased> Eric V. Smith
+------------------------------
+
+* Require setuptools, and specify universal wheels (issue #30).
+
 1.7 2015-05-15 Eric V. Smith
 ----------------------------
 
