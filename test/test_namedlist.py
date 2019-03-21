@@ -526,10 +526,10 @@ class TestNamedList(unittest.TestCase):
     def test_ABC(self):
         Point = namedlist('Point', 'a b c')
         p = Point(1, 2, 2)
-        self.assertIsInstance(p, collections.Container)
-        self.assertIsInstance(p, collections.Iterable)
-        self.assertIsInstance(p, collections.Sized)
-        self.assertIsInstance(p, collections.Sequence)
+        self.assertIsInstance(p, collections.abc.Container)
+        self.assertIsInstance(p, collections.abc.Iterable)
+        self.assertIsInstance(p, collections.abc.Sized)
+        self.assertIsInstance(p, collections.abc.Sequence)
 
         self.assertEqual(list(reversed(p)), [2, 2, 1])
         self.assertEqual(p.count(0), 0)
