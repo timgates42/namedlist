@@ -197,7 +197,7 @@ def _field_name_with_default(name, default):
     return '{0}={1!r}'.format(name, default)
 
 def _build_docstring(typename, fields, defaults):
-    # We can use NO_DEFAULT as a sentinel here, becuase it will never be
+    # We can use NO_DEFAULT as a sentinel here, because it will never be
     #  present in defaults. By this point, it has been removed and replaced
     #  with actual default values.
 
