@@ -21,7 +21,7 @@ class PyTest(Command):
         print('test complete')
 
 
-setup(name='namedlist',
+setup(name='namedlist42',
       version='1.8a3',
       url='https://bitbucket.org/ericvsmith/namedlist',
       author='Eric V. Smith',
