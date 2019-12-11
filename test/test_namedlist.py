@@ -28,6 +28,10 @@ import copy
 import unittest
 import collections
 import unicodedata
+try:
+    import collections.abc as collections_abc
+except ImportError:
+    collections_abc = collections
 
 _PY2 = sys.version_info[0] == 2
 _PY3 = sys.version_info[0] == 3
@@ -526,10 +530,10 @@ class TestNamedList(unittest.TestCase):
     def test_ABC(self):
         Point = namedlist('Point', 'a b c')
         p = Point(1, 2, 2)
-        self.assertIsInstance(p, collections.abc.Container)
-        self.assertIsInstance(p, collections.abc.Iterable)
-        self.assertIsInstance(p, collections.abc.Sized)
-        self.assertIsInstance(p, collections.abc.Sequence)
+        self.assertIsInstance(p, collections_abc.Container)
+        self.assertIsInstance(p, collections_abc.Iterable)
+        self.assertIsInstance(p, collections_abc.Sized)
+        self.assertIsInstance(p, collections_abc.Sequence)
 
         self.assertEqual(list(reversed(p)), [2, 2, 1])
         self.assertEqual(p.count(0), 0)
