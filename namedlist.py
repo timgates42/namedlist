@@ -44,7 +44,7 @@ import collections as _collections
 try:
     import collections.abc as _collections_abc
 except ImportError:
-    collections_abc = _collections
+    _collections_abc = _collections
 import abc as _abc
 
 _PY2 = _sys.version_info[0] == 2
