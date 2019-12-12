@@ -22,7 +22,7 @@ class PyTest(Command):
 
 
 setup(name='namedlist42',
-      version='1.8.4',
+      version='1.8.5',
       url='https://bitbucket.org/ericvsmith/namedlist',
       author='Eric V. Smith',
       author_email='eric@trueblade.com',
