@@ -169,6 +169,7 @@ def _make_fn(name, chain_fn, args, defaults):
                                     defaults=defs)
     else:
         parameters = _ast.arguments(args=[_ast.arg(arg=arg) for arg in args_with_self],
+                                    posonlyargs=[],
                                     kwonlyargs=[],
                                     defaults=defs,
                                     kw_defaults=[])
