@@ -173,12 +173,13 @@ def _make_fn(name, chain_fn, args, defaults):
                                     kwonlyargs=[],
                                     defaults=defs,
                                     kw_defaults=[])
-    module_node = _ast.Module(body=[_ast.FunctionDef(name=name,
-                                                     args=parameters,
-                                                     body=[_ast.Return(value=_ast.Call(func=_ast.Name(id='_chain', ctx=_ast.Load()),
-                                                                                       args=arguments,
-                                                                                       keywords=[]))],
-                                                     decorator_list=[])])
+    module_node = _ast.parse("")
+    module_node.body=[_ast.FunctionDef(name=name,
+                                       args=parameters,
+                                       body=[_ast.Return(value=_ast.Call(func=_ast.Name(id='_chain', ctx=_ast.Load()),
+                                                         args=arguments,
+                                                         keywords=[]))],
+                                       decorator_list=[])]
     module_node = _ast.fix_missing_locations(module_node)
 
     # compile the ast
