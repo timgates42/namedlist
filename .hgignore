@@ -1,5 +1,0 @@
-syntax: glob
-
-*.pyc
-dist/*gz
-MANIFEST
