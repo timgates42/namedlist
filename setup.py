@@ -22,7 +22,7 @@ class PyTest(Command):
 
 
 setup(name='namedlist',
-      version='1.8a3',
+      version='1.8',
       url='https://gitlab.com/ericvsmith/namedlist',
       author='Eric V. Smith',
       author_email='eric@trueblade.com',
