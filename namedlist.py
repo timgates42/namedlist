@@ -42,6 +42,10 @@ import itertools as _itertools
 from keyword import iskeyword as _iskeyword
 import collections as _collections
 import abc as _abc
+try:
+    import collections.abc as _collections_abc
+except ImportError:
+    import collections as _collections_abc
 
 _PY2 = _sys.version_info[0] == 2
 _PY3 = _sys.version_info[0] == 3
@@ -249,7 +253,7 @@ def _fields_and_defaults(typename, field_names, default, rename):
 
     # If field_names is a Mapping, change it to return the
     #  (field_name, default) pairs, as if it were a list.
-    if isinstance(field_names, _collections.Mapping):
+    if isinstance(field_names, _collections_abc.Mapping):
         field_names = field_names.items()
 
     # Parse and validate the field names.
@@ -365,7 +369,7 @@ def _nl_index(self, value, start=NO_DEFAULT, stop=NO_DEFAULT):
 def _nl_update(_self, _other=None, **kwds):
     if isinstance(_other, type(_self)):
         _other = zip(_self._fields, _other)
-    elif isinstance(_other, _collections.Mapping):
+    elif isinstance(_other, _collections_abc.Mapping):
         tmp = []
         for field_name in _self._fields:
             try:
@@ -420,7 +424,7 @@ def namedlist(typename, field_names, default=NO_DEFAULT, rename=False,
     t = type(typename, (object,), type_dict)
 
     # Register its ABC's
-    _collections.Sequence.register(t)
+    _collections_abc.Sequence.register(t)
 
     # And return it.
     return t
