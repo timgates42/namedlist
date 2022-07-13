@@ -4,7 +4,7 @@
 #  namedtuple, which is the same as collections.namedtuple supporting
 #  defaults.
 #
-# Copyright 2011-2014 True Blade Systems, Inc.
+# Copyright 2011-2020 True Blade Systems, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,14 +41,15 @@ import operator as _operator
 import itertools as _itertools
 from keyword import iskeyword as _iskeyword
 import collections as _collections
+import abc as _abc
 try:
     import collections.abc as _collections_abc
 except ImportError:
-    _collections_abc = _collections
-import abc as _abc
+    import collections as _collections_abc
 
 _PY2 = _sys.version_info[0] == 2
 _PY3 = _sys.version_info[0] == 3
+_PY38_or_higher = _PY3 and _sys.version_info.minor >= 8
 
 try:
     _OrderedDict = _collections.OrderedDict
@@ -168,18 +169,34 @@ def _make_fn(name, chain_fn, args, defaults):
         parameters = _ast.arguments(args=[_ast.Name(id=arg, ctx=_ast.Param()) for arg in args_with_self],
                                     defaults=defs)
     else:
-        parameters = _ast.arguments(args=[_ast.arg(arg=arg) for arg in args_with_self],
-                                    posonlyargs=[],
-                                    kwonlyargs=[],
-                                    defaults=defs,
-                                    kw_defaults=[])
-    module_node = _ast.parse("")
-    module_node.body=[_ast.FunctionDef(name=name,
-                                       args=parameters,
-                                       body=[_ast.Return(value=_ast.Call(func=_ast.Name(id='_chain', ctx=_ast.Load()),
-                                                         args=arguments,
-                                                         keywords=[]))],
-                                       decorator_list=[])]
+        if _PY38_or_higher:
+            parameters = _ast.arguments(args=[_ast.arg(arg=arg) for arg in args_with_self],
+                                        posonlyargs=[],
+                                        kwonlyargs=[],
+                                        defaults=defs,
+                                        kw_defaults=[])
+        else:
+            parameters = _ast.arguments(args=[_ast.arg(arg=arg) for arg in args_with_self],
+                                        kwonlyargs=[],
+                                        defaults=defs,
+                                        kw_defaults=[])
+
+    if _PY38_or_higher:
+        module_node = _ast.Module(body=[_ast.FunctionDef(name=name,
+                                                         args=parameters,
+                                                         body=[_ast.Return(value=_ast.Call(func=_ast.Name(id='_chain', ctx=_ast.Load()),
+                                                                                           args=arguments,
+                                                                                           keywords=[]))],
+                                                         decorator_list=[])],
+                                  type_ignores=[])
+    else:
+        module_node = _ast.Module(body=[_ast.FunctionDef(name=name,
+                                                         args=parameters,
+                                                         body=[_ast.Return(value=_ast.Call(func=_ast.Name(id='_chain', ctx=_ast.Load()),
+                                                                                           args=arguments,
+                                                                                           keywords=[]))],
+                                                         decorator_list=[])])
+
     module_node = _ast.fix_missing_locations(module_node)
 
     # compile the ast

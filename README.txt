@@ -2,6 +2,12 @@
 namedlist
 ===========
 
+WARNING
+=======
+
+This package is no longer maintained, except for exceptional cases.
+Please use the built-in dataclasses module instead.
+
 Overview
 ========
 
@@ -332,3 +338,13 @@ Creating and using instances
 Because the type returned by namedlist or namedtuple is a normal
 Python class, you create instances as you would with any Python class.
 
+Bitbucket vs. GitLab
+====================
+
+The repository used to be on Bitbucket in Mercurial format.  But
+Bitbucket dropped Mercurial support and did not provide any way to
+migrate issues to a git repository, even one hosted on Bitbucket.  So,
+I abandoned Bitbucket and moved the code to GitLab.  Thus, all of the
+issue were lost, and new issues started again with #1.  I'm naming the
+GitLab issues as #GH-xx, and the old Bitbucket issues as #BB-xx.  I'm
+still angry at Bitbucket for forcing this change.
